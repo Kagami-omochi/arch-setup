@@ -12,11 +12,11 @@ Arch Linuxインストール自動化スクリプト
 >パーティション切るのとかユーザーの追加とか忘れずに
 
 
-手動インストールするならはとりあえずchrootまでは手動でやらないとこのスクリプト動かんからやり方書いとく  
+手動インストールするならはとりあえず本体のインストールまでは手動でやらないとこのスクリプト動かんからやり方書いとく  
 ファイルシステムはext4のほうがメジャーだけど今回はBtrfs使うよ
 
 
-## chrootまでの手順
+## Arch Linux本体のインストール手順
 ***1. 時刻の同期***
 
 
@@ -123,35 +123,31 @@ pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networ
 > [!TIP]
 > Intel CPUを使っている場合は、`amd-ucode` を `intel-ucode` に書き換えてください。
 
-
 ***6. fstabの生成***
-
-
 ```Bash
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
-***7. ネットワークの有効化***
+
+***7. インストールしたArch Linuxの中に入る***
 ```Bash
-arch-chroot /mnt systemctl enable NetworkManager
+arch-chroot /mnt
 ```
 
+***8. ネットワークの有効化***
+```Bash
+systemctl enable NetworkManager
+```
 
-***8. GRUBのインストール***
+***9. GRUBのインストール***
 ```Bash
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 ```
 
-
-***9. GRUB設定ファイルの生成***
+***10. GRUB設定ファイルの生成***
 ```Bash
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-
-***10. インストールしたArch Linuxの中に入る***
-```Bash
-arch-chroot /mnt
-```
 ## Arch Linux本体のインストール完了！
 ここまで行けたらこのリポジトリをgit cloneしてsetup.shに実行権限つけて実行してね  
 あとはまかせろり
