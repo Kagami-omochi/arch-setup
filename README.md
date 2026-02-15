@@ -118,7 +118,7 @@ mount /dev/nvme0n1p1 /mnt/boot/efi
 
 ベースシステムと必要なパッケージをインストールします。
 ```Bash
-pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager nvim git base-devel amd-ucode
+pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager nvim git base-devel amd-ucode grub efibootmgr
 ```
 > [!TIP]
 > Intel CPUを使っている場合は、`amd-ucode` を `intel-ucode` に書き換えてください。
@@ -134,8 +134,21 @@ genfstab -U /mnt >> /mnt/etc/fstab
 ```Bash
 arch-chroot /mnt systemctl enable NetworkManager
 ```
-***8. インストールしたArch Linuxの中に入る***
 
+
+***8. GRUBのインストール***
+```Bash
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+```
+
+
+***9. GRUB設定ファイルの生成***
+```Bash
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+
+***10. インストールしたArch Linuxの中に入る***
 ```Bash
 arch-chroot /mnt
 ```
