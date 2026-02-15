@@ -2,9 +2,9 @@
 Arch Linuxインストール自動化スクリプト
 
 ## はじめに
-手動でインストールするのめんどくさかったら`archinstall`でもいいかもしれん
-
-
+> [!TIP]
+>手動でインストールするのめんどくさかったら`archinstall`でもいいかもしれん
+> 
 >設定例
 >```Bash
 >archinstall --config "https://raw.githubusercontent.com/Kagami-omochi/arch-setup/refs/heads/main/user_configuration.json"
@@ -20,7 +20,7 @@ Arch Linuxインストール自動化スクリプト
 ***1. 時刻の同期***
 
 
-これを忘れると後の署名検証でエラーが出ることがあります。  
+これを忘れると署名検証でエラーが出ることがあります。  
 ```Bash
 timedatectl set-ntp true
 ```
