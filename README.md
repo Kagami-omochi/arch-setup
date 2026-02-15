@@ -3,9 +3,9 @@ Arch Linuxインストール自動化スクリプト
 
 ## はじめに
 手動でインストールするのめんどくさかったら`archinstall`でもいいかもしれん  
-`archinstall`使うなら手動インストールはしなくて良い
-
-
+```Bash
+archinstall --config "https://raw.githubusercontent.com/Kagami-omochi/arch-setup/refs/heads/main/user_configuration.json"
+```
 手動インストールするならはとりあえずchrootまでは手動でやらないとこのスクリプト動かんからやり方書いとく  
 ファイルシステムはext4のほうがメジャーだけど今回はBtrfs使うよ
 
