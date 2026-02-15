@@ -118,7 +118,7 @@ mount /dev/nvme0n1p1 /mnt/boot/efi
 
 ベースシステムと必要なパッケージをインストールします。
 ```Bash
-pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager nvim git base-devel amd-ucode grub efibootmgr
+pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager grub efibootmgr amd-ucode
 ```
 > [!TIP]
 > Intel CPUを使っている場合は、`amd-ucode` を `intel-ucode` に書き換えてください。
