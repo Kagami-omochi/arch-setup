@@ -1,0 +1,25 @@
+# Official Repositories
+nvidia-dkms
+nvidia-utils
+nvidia-settings
+sudo
+uwsm
+snapper
+snap-pac
+btrfs-assistant
+fcitx5-im
+fcitx5-mozc
+keyd
+neovim
+noto-fonts-cjk
+reflector
+hyprland
+hyprlock
+hyprpolkitagent
+cliphist
+btop
+kitty
+discord
+
+# Arch User Repositories
+visual-studio-code-bin
