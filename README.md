@@ -2,16 +2,19 @@
 Arch Linuxインストール自動化スクリプト
 
 ## はじめに
-手動でインストールするのめんどくさかったら`archinstall`でもいいかもしれん  
-```Bash
-archinstall --config "https://raw.githubusercontent.com/Kagami-omochi/arch-setup/refs/heads/main/user_configuration.json"
-```
+手動でインストールするのめんどくさかったら`archinstall`でもいいかもしれん
+
+
+>設定例
+>```Bash
+>archinstall --config "https://raw.githubusercontent.com/Kagami-omochi/arch-setup/refs/heads/main/user_configuration.json"
+>```
 手動インストールするならはとりあえずchrootまでは手動でやらないとこのスクリプト動かんからやり方書いとく  
 ファイルシステムはext4のほうがメジャーだけど今回はBtrfs使うよ
 
 
 ## chrootまでの手順
-1. 時刻の同期
+***1. 時刻の同期***
 
 
 これを忘れると後の署名検証でエラーが出ることがあります。  
@@ -20,22 +23,26 @@ timedatectl set-ntp true
 ```
 
 
-2. ディスクパーティション作成
+***2. ディスクパーティション作成***
 
 
 ディスクを確認します（例: `/dev/nvme0n1` や `/dev/sda`）
 ```Bash
 lsblk
 ```
-※もしインストールしたいディスクが`/dev/sda`や`/dev/sdb`等なら以下すべて`/dev/nvme0n1`を読み替える。
+> [!IMPORTANT]
+> **もしインストールしたいディスクが`/dev/sda`や`/dev/sdb`等なら以下すべて`/dev/nvme0n1`を読み替える。**
 
 
-`fdisk` や `cfdisk` で以下の構成を作成してください。  
-・EFIシステムパーティション: 512MiB〜1GiB (Type: EFI System)  
-・ルートパーティション: 残り全部 (Type: Linux x86-64 root)
+```Bash
+cfdisk
+```
+`cfdisk`で以下の構成を作成してください。
+*  EFIシステムパーティション: 512MiB〜1GiB (Type: EFI System)  
+*  ルートパーティション: 残り全部 (Type: Linux x86-64 root)
 
 
-3. パーティションのフォーマット
+***3. パーティションのフォーマット***
 
 
 作成したパーティションを初期化します。
@@ -78,7 +85,7 @@ umount /mnt
 ```
 
 
-4. サブボリュームのマウント
+***4. サブボリュームのマウント***
 
 
 ルートのサブボリュームをマウント
@@ -103,33 +110,32 @@ EFIパーティションのマウント
 ```Bash
 mount /dev/nvme0n1p1 /mnt/boot/efi
 ```
-5. 基本システムのインストール
+***5. 基本システムのインストール***
 
 
 ベースシステムと必要なパッケージをインストールします。
 ```Bash
 pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager nvim git base-devel amd-ucode
 ```
-※Intel CPUを使ってるなら`amd-ucode`を書き換えて`intel-ucode`にする
+> [!TIP]
+> Intel CPUを使っている場合は、`amd-ucode` を `intel-ucode` に書き換えてください。
 
 
-6. fstabの生成
+***6. fstabの生成***
 
 
 ```Bash
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
-7. ネットワークの有効化
+***7. ネットワークの有効化***
 ```Bash
 arch-chroot /mnt systemctl enable NetworkManager
 ```
-8.インストールしたArch Linuxの中に入る
+***8. インストールしたArch Linuxの中に入る***
 
 ```Bash
 arch-chroot /mnt
 ```
-
-
 ## Arch Linux本体のインストール完了！
 ここまで行けたらこのリポジトリをgit cloneしてsetup.shに実行権限つけて実行してね  
 あとはまかせろり
