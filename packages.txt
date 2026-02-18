@@ -16,6 +16,13 @@ reflector
 hyprland
 hyprlock
 hyprpolkitagent
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+wireplumber
+fastfetch
+kdeconnect
 cliphist
 btop
 kitty
