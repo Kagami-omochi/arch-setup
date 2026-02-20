@@ -18,6 +18,9 @@ keyd
 neovim
 noto-fonts-cjk
 reflector
+xdg-desktop-portal
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
 hyprland
 hyprlock
 hyprpolkitagent
