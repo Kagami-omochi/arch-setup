@@ -1,4 +1,9 @@
 # Official Repositories
+grub
+efibootmgr
+os-prober
+ntfs-3g
+mtools
 nvidia-dkms
 nvidia-utils
 nvidia-settings
