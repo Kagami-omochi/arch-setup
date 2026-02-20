@@ -118,7 +118,7 @@ mount /dev/nvme0n1p1 /mnt/boot/efi
 
 ベースシステムと必要なパッケージをインストールします。
 ```Bash
-pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager grub efibootmgr os-prober amd-ucode
+pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager amd-ucode
 ```
 > [!TIP]
 > Intel CPUを使っている場合は、`amd-ucode` を `intel-ucode` に書き換えてください。
@@ -138,15 +138,6 @@ arch-chroot /mnt
 systemctl enable NetworkManager
 ```
 
-***9. GRUBのインストール***
-```Bash
-grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
-```
-
-***10. GRUB設定ファイルの生成***
-```Bash
-grub-mkconfig -o /boot/grub/grub.cfg
-```
 
 ## Arch Linux本体のインストール完了！
 ここまで行けたらこのリポジトリをgit cloneしてsetup.shに実行権限つけて実行してね  
