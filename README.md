@@ -133,11 +133,6 @@ genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 ```
 
-***8. ネットワークの有効化***
-```Bash
-systemctl enable NetworkManager
-```
-
 
 ## Arch Linux本体のインストール完了！
 ここまで行けたらこのリポジトリをgit cloneしてsetup.shに実行権限つけて実行してね  
