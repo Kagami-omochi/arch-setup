@@ -1,4 +1,15 @@
 #!/bin/bash
+
+systemctl enable NetworkManager
+
+ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
+hwclock --systohc
+
+sed -i 's/^#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
+sed -i 's/^#ja_JP.UTF-8 UTF-8/ja_JP.UTF-8 UTF-8/' /etc/locale.gen
+locale-gen
+echo "LANG=ja_JP.UTF-8" > /etc/locale.conf
+
 set -e
 
 PKG_LIST="packages.txt"
