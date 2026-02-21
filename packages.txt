@@ -32,6 +32,7 @@ wireplumber
 fastfetch
 kdeconnect
 cliphist
+flatpak
 btop
 kitty
 discord
