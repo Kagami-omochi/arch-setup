@@ -39,3 +39,4 @@ discord
 
 # Arch User Repositories
 visual-studio-code-bin
+google-chrome
