@@ -1,6 +1,72 @@
 #!/bin/bash
 set -e
 
+echo "--- Arch Linux Auto Installer ---"
+
+lsblk
+echo ""
+read -p "Please select the disk for installation (e.g., /dev/nvme0n1): " DISK
+read -p "If you are using an Intel CPU, enter 'y' if you are using an AMD CPU, enter 'n'." IS_INTEL
+
+if [[ $DISK == *"nvme"* ]]; then
+    PART_EFI="${DISK}p1"
+    PART_ROOT="${DISK}p2"
+else
+    PART_EFI="${DISK}1"
+    PART_ROOT="${DISK}2"
+fi
+
+UCODE="amd-ucode"
+if [ "$IS_INTEL" = "y" ]; then
+    UCODE="intel-ucode"
+fi
+
+echo "--------------------------------------"
+echo "DISK: $DISK (EFI: $PART_EFI, ROOT: $PART_ROOT)"
+echo "UCODE: $UCODE"
+echo "Warning: All data on $DISK will be erased."
+read -p "Continue? (y/N): " CONFIRM
+[[ $CONFIRM != "y" ]] && exit 1
+
+echo "Synchronizing time..."
+timedatectl set-ntp true
+
+echo "Creating partition..."
+sed -e 's/\s*\([\+0-9a-zA-Z]*\).*/\1/' << EOF | sfdisk $DISK
+  label: gpt
+  , 1G, C12A7328-F81F-11D2-BA4B-00A0C93EC93B
+  , , 4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709
+EOF
+
+echo "Formatting..."
+mkfs.fat -F 32 $PART_EFI
+mkfs.btrfs -L archlinux -f $PART_ROOT
+
+mount $PART_ROOT /mnt
+btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
+btrfs subvolume create /mnt/@log
+btrfs subvolume create /mnt/@pkg
+umount /mnt
+
+echo "Mounting subvolume..."
+mount -o noatime,compress=zstd,subvolume=@ $PART_ROOT /mnt
+mkdir -p /mnt/{home,var/log,var/cache/pacman/pkg,boot/efi}
+mount -o noatime,compress=zstd,subvolume=@home $PART_ROOT /mnt/home
+mount -o noatime,compress=zstd,subvolume=@log $PART_ROOT /mnt/var/log
+mount -o noatime,compress=zstd,subvolume=@pkg $PART_ROOT /mnt/var/cache/pacman/pkg
+mount $PART_EFI /mnt/boot/efi
+
+echo "Installing package..."
+pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager $UCODE
+
+genfstab -U /mnt >> /mnt/etc/fstab
+
+echo "--------------------------------------"
+echo "The basic installation is complete."
+
+arch-chroot /mnt
+
 systemctl enable NetworkManager
 
 ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
