@@ -20,7 +20,9 @@ hyprpolkitagent
 hyprpicker
 kvantum
 kdeconnect
+noto-fonts
 noto-fonts-cjk
+noto-fonts-emoji
 mtools
 btop
 ntfs-3g
@@ -88,3 +90,4 @@ neovim
 google-chrome
 visual-studio-code-bin
 minecraft-launcher
+prismlauncher
