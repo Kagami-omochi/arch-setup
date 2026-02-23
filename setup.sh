@@ -6,9 +6,9 @@ echo "--- Arch Linux Auto Installer ---"
 lsblk
 echo ""
 read -p "Please select the disk for installation (e.g., /dev/nvme0n1): " DISK
-read -p "If you are using an Intel CPU, enter 'y' if you are using an AMD CPU, enter 'n'." IS_INTEL
+read -p "If you are using an Intel CPU, enter 'y' if you are using an AMD CPU, enter 'n'.: " IS_INTEL
 
-if [[ $DISK == *"nvme"* ]]; then
+if [[ $DISK == *"nvme"* ]] || [[ $DISK == *"mmcblk"* ]]; then
     PART_EFI="${DISK}p1"
     PART_ROOT="${DISK}p2"
 else
@@ -58,14 +58,24 @@ mount -o noatime,compress=zstd,subvolume=@pkg $PART_ROOT /mnt/var/cache/pacman/p
 mount $PART_EFI /mnt/boot/efi
 
 echo "Installing package..."
-pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager $UCODE
+pacstrap /mnt base linux-zen linux-zen-headers linux-firmware btrfs-progs networkmanager sudo base-devel git grub efibootmgr os-prober $UCODE
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
 echo "--------------------------------------"
 echo "The basic installation is complete."
 
-arch-chroot /mnt
+PKG_LIST="packages.txt"
+if [ -f "$PKG_LIST" ]; then
+    cp "$PKG_LIST" /mnt/packages.txt
+else
+    echo "Warning: $PKG_LIST not found. Skipping extra packages installation."
+    touch /mnt/packages.txt
+fi
+
+cat << 'EOF' > /mnt/setup_chroot.sh
+#!/bin/bash
+set -e
 
 systemctl enable NetworkManager
 
@@ -77,34 +87,43 @@ sed -i 's/^#ja_JP.UTF-8 UTF-8/ja_JP.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 echo "LANG=ja_JP.UTF-8" > /etc/locale.conf
 
-PKG_LIST="packages.txt"
-
 echo "--- Arch Linux Unified Setup ---"
 
-sudo pacman -S --needed --noconfirm base-devel git
-
 if ! command -v yay &> /dev/null; then
-    echo "Installing yay..."
-    _temp_dir=$(mktemp -d)
-    git clone https://aur.archlinux.org/yay.git "$_temp_dir"
-    cd "$_temp_dir" && makepkg -si --noconfirm
-    cd - && rm -rf "$_temp_dir"
+    echo "Installing yay with temporary user..."
+
+    useradd -m -G wheel builduser
+    echo "builduser ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builduser
+
+    su - builduser -c "
+        git clone https://aur.archlinux.org/yay.git /tmp/yay
+        cd /tmp/yay
+        makepkg -si --noconfirm
+    "
+
+    userdel -r builduser
+    rm -f /etc/sudoers.d/builduser
+    rm -rf /tmp/yay
 fi
 
-if [ -f "$PKG_LIST" ]; then
+if [ -s "/packages.txt" ]; then
     echo "Installing packages from packages.txt..."
-    sed -e 's/#.*//' -e '/^$/d' "$PKG_LIST" | xargs -ro yay -S --needed --noconfirm
-else
-    echo "Error: $PKG_LIST not found."
-    exit 1
+    sed -e 's/#.*//' -e '/^$/d' "/packages.txt" | sudo -u nobody yay -S --needed --noconfirm || \
+    sed -e 's/#.*//' -e '/^$/d' "/packages.txt" | xargs -ro pacman -S --needed --noconfirm
 fi
 
-echo "--- The package installation is complete! ---"
+echo "--- Configuring Bootloader (GRUB) ---"
+
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
 
 if grep -q "GRUB_DISABLE_OS_PROBER" /etc/default/grub; then
-    sudo sed -i 's/^#*GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
+    sed -i 's/^#*GRUB_DISABLE_OS_PROBER=.*/GRUB_DISABLE_OS_PROBER=false/' /etc/default/grub
 else
-    echo 'GRUB_DISABLE_OS_PROBER=false' | sudo tee -a /etc/default/grub
+    echo 'GRUB_DISABLE_OS_PROBER=false' >> /etc/default/grub
+fi
+
+if ! command -v snapper &> /dev/null; then
+    pacman -S --noconfirm snapper
 fi
 
 if [ ! -d "/.snapshots" ]; then
@@ -113,16 +132,16 @@ fi
 
 echo "--- Configuring Dual Boot (Windows) ---"
 
-WIN_ESP=$(lsblk -dno PATH,PARTTYPE | grep -i "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" | awk '{print $1}' | head -n 1)
+WIN_ESP=$(lsblk -dno PATH,PARTTYPE | grep -i "c12a7328-f81f-11d2-ba4b-00a0c93ec93b" | awk '{print $1}' | grep -v "/dev/$(lsblk -no PKNAME /boot/efi | head -1)" | head -n 1)
 
 if [ -n "$WIN_ESP" ]; then
-    echo "Found Windows EFI partition at $WIN_ESP"
+    echo "Found other EFI partition at $WIN_ESP"
     
-    MNT_TMP="/mnt/win_esp_temp"
-    sudo mkdir -p "$MNT_TMP"
+    MNT_TMP="/win_esp_temp"
+    mkdir -p "$MNT_TMP"
     
     if ! mountpoint -q "$MNT_TMP"; then
-        if sudo mount -t vfat "$WIN_ESP" "$MNT_TMP" 2>/dev/null; then
+        if mount -t vfat "$WIN_ESP" "$MNT_TMP" 2>/dev/null; then
             echo "Successfully mounted $WIN_ESP to $MNT_TMP"
         else
             echo "Warning: Failed to mount Windows EFI partition."
@@ -130,12 +149,22 @@ if [ -n "$WIN_ESP" ]; then
     fi
 
     echo "Updating GRUB config..."
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
+    grub-mkconfig -o /boot/grub/grub.cfg
 
     if mountpoint -q "$MNT_TMP"; then
-        sudo umount "$MNT_TMP"
+        umount "$MNT_TMP"
     fi
-    sudo rmdir "$MNT_TMP"
+    rmdir "$MNT_TMP"
 else
-    echo "Windows EFI partition not found. Skipping OS Prober scan."
+    echo "Windows EFI partition not found. Skipping."
+    grub-mkconfig -o /boot/grub/grub.cfg
 fi
+EOF
+
+chmod +x /mnt/setup_chroot.sh
+arch-chroot /mnt /setup_chroot.sh
+
+rm -f /mnt/setup_chroot.sh
+rm -f /mnt/packages.txt
+
+echo "--- Installation complete! ---"
