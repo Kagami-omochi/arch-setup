@@ -82,6 +82,7 @@ docker-compose
 rofi
 needrestart
 pacman-contrib
+loupe
 
 
 
@@ -93,3 +94,4 @@ google-chrome
 visual-studio-code-bin
 minecraft-launcher
 prismlauncher
+steam
