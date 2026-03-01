@@ -80,6 +80,8 @@ zam-plugins-lv2
 docker
 docker-compose
 rofi
+needrestart
+pacman-contrib
 
 
 
