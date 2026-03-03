@@ -84,6 +84,7 @@ pacman-contrib
 loupe
 ufw
 obs-studio
+obs-cmd
 pavucontrol
 swww
 video-trimmer
@@ -98,6 +99,10 @@ p7zip
 unzip
 unrar
 zip
+gamescope
+bt-dualboot
+qdirstat
+breezex-cursor-theme
 
 
 
@@ -110,3 +115,5 @@ visual-studio-code-bin
 minecraft-launcher
 prismlauncher
 steam
+sunshine
+unityhub
