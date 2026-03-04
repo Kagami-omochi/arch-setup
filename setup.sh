@@ -6,13 +6,13 @@ echo "--- Arch Linux Custom Installer ---"
 # 1. ユーザー入力の取得
 lsblk
 echo ""
-read -p "インストール先のディスクを選択してください (例: /dev/nvme0n1): " DISK
-read -p "Intel CPUですか？ (y/n): " IS_INTEL
-read -p "ホスト名を入力してください: " HOSTNAME
-read -p "作成するユーザー名を入力してください: " USERNAME
-read -s -p "${USERNAME} のパスワードを入力してください: " USER_PW
+read -p "Please select the disk for installation (e.g., /dev/nvme0n1): " DISK
+read -p "Intel CPU? (y/n): " IS_INTEL
+read -p "Please enter the hostname: " HOSTNAME
+read -p "Please enter the username you wish to create: " USERNAME
+read -s -p "Please enter the password for ${USERNAME} : " USER_PW
 echo ""
-read -s -p "Rootのパスワードを入力してください: " ROOT_PW
+read -s -p "Please enter the root password: " ROOT_PW
 echo ""
 
 # パーティション名の判定
@@ -31,8 +31,8 @@ echo "--------------------------------------"
 echo "DISK: $DISK (EFI: $PART_EFI, ROOT: $PART_ROOT)"
 echo "USER: $USERNAME"
 echo "UCODE: $UCODE"
-echo "警告: $DISK のデータはすべて消去されます。"
-read -p "続行しますか？ (y/N): " CONFIRM
+echo "Warning: All data on $DISK will be erased."
+read -p "Continue? (y/N): " CONFIRM
 [[ $CONFIRM != "y" ]] && exit 1
 
 # 2. システム時計の設定
@@ -153,4 +153,4 @@ rm /mnt/setup_chroot.sh
 rm /mnt/tmp/packages.txt
 
 echo "--------------------------------------"
-echo "インストールが完了しました！再起動してください。"
+echo "Installation complete! Please restart."
