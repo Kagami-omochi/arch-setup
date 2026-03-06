@@ -117,3 +117,4 @@ prismlauncher
 steam
 sunshine
 unityhub
+lutris
