@@ -1,4 +1,3 @@
-# system packages
 btrfs-assistant
 efibootmgr
 grub
@@ -23,12 +22,16 @@ kdeconnect
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+otf-font-awesome
 mtools
 btop
 ntfs-3g
 nvidia-open-dkms
 nvidia-settings
 nvidia-utils
+libva-nvidia-driver
+libva-utils
+nvidia-container-toolkit
 pipewire
 pipewire-alsa
 pipewire-jack
@@ -102,11 +105,9 @@ zip
 gamescope
 bt-dualboot
 qdirstat
+qdiskinfo
 breezex-cursor-theme
-
-
-
-# app packages
+plymouth
 discord
 kitty
 neovim
@@ -118,3 +119,12 @@ steam
 sunshine
 unityhub
 lutris
+nwg-look
+qt5-wayland
+qt5ct
+qt6-wayland
+qt6ct
+libnotify
+rustup
+kimageformats
+tracktion-waveform
